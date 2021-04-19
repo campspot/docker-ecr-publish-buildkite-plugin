@@ -8,7 +8,8 @@ get_ecr_url() {
   aws ecr describe-repositories \
     --repository-names "${repository_name}" \
     --output text \
-    --query 'repositories[0].repositoryUri'
+    --query 'repositories[0].repositoryUri' \
+    --region $BUILDKITE_PLUGIN_DOCKER_ECR_PUBLISH_REGION
 }
 
 read_build_args() {
