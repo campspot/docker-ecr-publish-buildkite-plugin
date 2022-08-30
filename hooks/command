@@ -6,6 +6,7 @@ get_ecr_url() {
   local repository_name="${1}"
 
   aws ecr describe-repositories \
+    --registry-id $account_id
     --repository-names "${repository_name}" \
     --output text \
     --query 'repositories[0].repositoryUri' \
@@ -92,8 +93,14 @@ push_tags() {
   done
 }
 
+if [[ -n ${BUILDKITE_PLUGIN_DOCKER_ECR_PUBLISH_ACCOUNT_ID:-} ]]; then
+  account_id="${BUILDKITE_PLUGIN_DOCKER_ECR_PUBLISH_ACCOUNT_ID}"
+else
+  account_id="$(aws sts get-caller-identity --output text | cut -f1)"
+fi
+
 echo '--- Logging in to ECR'
-$(aws ecr get-login --no-include-email)
+$(aws ecr get-login --registry-ids $account_id --no-include-email)
 
 echo '--- Reading plugin parameters'
 
